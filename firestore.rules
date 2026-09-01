@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Each subscriber doc is keyed by their lowercase email.
+    // A logged-in subscriber can only READ their own record.
+    // Writing (setting due dates, amounts, status) is meant to be done
+    // by the admin (you) via the Firebase Console or the PC dashboard,
+    // which should authenticate as an admin — NOT through this open rule.
+    // NOTE: keep subscriber doc IDs as lowercase emails (the app already does
+    // this when reading). Make sure you also add each subscriber's email in
+    // lowercase when creating their record from the PC dashboard / console.
+    match /subscribers/{email} {
+      allow read: if request.auth != null && request.auth.token.email == email;
+      allow write: if false; // tighten this once the PC admin dashboard has its own auth
+    }
+  }
+}
